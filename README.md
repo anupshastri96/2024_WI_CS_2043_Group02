@@ -1,4 +1,4 @@
-                                                         KANBAN BOARD PLUS
+                                                       KANBAN BOARD PLUS
 
 Kanban Board Plus is an advanced task management solution designed to streamline workflow processes and enhance productivity. By combining essential primary functions with additional features, Kanban Board Plus offers users a comprehensive tool for efficient task organization and collaboration.
 
