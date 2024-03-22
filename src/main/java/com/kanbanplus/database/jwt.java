@@ -9,19 +9,6 @@ import io.jsonwebtoken.SignatureAlgorithm;
 
 public class jwt{
 
-    @SuppressWarnings("deprecation")
-    public static void main(String[] args){
-        String password  = "hellow";
-        SecureRandom random = new SecureRandom();
-        System.out.println(random);
-        byte[] secret = Base64.getDecoder().decode(generateSafeToken());
-
-        String jwts = Jwts.builder()
-                      .setSubject(password)
-                      .signWith(SignatureAlgorithm.HS256,secret)
-                      .compact();
-        System.out.println(jwts);
-    }
     private static String generateSafeToken(){ 
         SecureRandom random = new SecureRandom();
         byte[] bytes = new byte[256]; 
@@ -29,20 +16,29 @@ public class jwt{
         Base64.Encoder encoder = Base64.getUrlEncoder().withoutPadding(); 
         return encoder.encodeToString(bytes);
     }
-    // public static String encodeToken(String payload){
+    public static String encodeToken(String payload){
+        byte[] secret = Base64.getMimeDecoder().decode(generateSafeToken());
 
-    // }
-    // public static String decodeToken(String token){
-    //     String[] chunks  = token.split("\\.");
-    //     Base64.Decoder decoder = Base64.getUrlDecoder();
+        @SuppressWarnings("deprecation")
+        String jwts = Jwts.builder()
+                      .setSubject(payload)
+                      .signWith(SignatureAlgorithm.HS256,secret)
+                      .compact();
+        return jwts;
+    }
+    public static String decodeToken(String token){
+        String password="";
+        String[] chunks  = token.split("\\.");
+        Base64.Decoder decoder = Base64.getUrlDecoder();
 
-    //     String header = new String(decoder.decode(chunks[0]));
-    //     String payload = new String(decoder.decode(chunks[1]));
+        String payload = new String(decoder.decode(chunks[1]));
         
-    //     int passwordIndex = payload.indexOf("password:")+9;
-    //     if(passwordIndex != -1){
-    //         String password="";
-    //         for(int i=passwordIndex;i<payload.indexOf(""))
-    //     }
-    // }
+        int passwordIndex = payload.indexOf("password:")+9;
+        if(passwordIndex != -1){
+            for(int i=passwordIndex;i<payload.indexOf("}");i++){
+                password+=payload.charAt(passwordIndex);
+            }
+        }
+        return password;
+    }
 }
