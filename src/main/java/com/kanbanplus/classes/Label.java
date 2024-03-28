@@ -1,3 +1,4 @@
+package com.kanbanplus.classes;
 public class Label {
     private String labelId;
     private String title;

@@ -1,3 +1,8 @@
+package com.kanbanplus.classes;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class Card {
     private String cardId;
     private String title;

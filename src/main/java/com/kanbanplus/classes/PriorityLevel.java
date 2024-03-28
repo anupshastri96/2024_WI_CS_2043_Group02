@@ -1,3 +1,4 @@
+package com.kanbanplus.classes;
 public enum PriorityLevel {
     HIGH("High", "Highest priority"),
     MEDIUM("Medium", "Medium priority"),

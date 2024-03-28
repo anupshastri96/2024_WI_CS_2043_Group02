@@ -1,4 +1,5 @@
 // KanbanBoard.java
+package com.kanbanplus.classes;
 import java.util.List;
 
 public class KanbanBoard {

@@ -1,3 +1,6 @@
+package com.kanbanplus.classes;
+
+
 public class Attachment {
     private String attachmentId;
     private String fileName;
