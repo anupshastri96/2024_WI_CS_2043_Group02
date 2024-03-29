@@ -5,7 +5,6 @@ import java.sql.*;
 import java.util.Scanner;
 import org.apache.commons.lang3.SerializationUtils;
 
-
 public class database{
     public static void main(String[] args) throws SQLException {
         Connection connector  = openConnection();
@@ -56,9 +55,10 @@ public class database{
         Scanner passInput = new Scanner(System.in);
         String passIn = passInput.nextLine();
         try{
-            String password = checkUser(userIn, connectorIn);
-            if(password!=null){
-                if(passIn.equals(password)){
+            String encodedpass = checkUser(userIn, connectorIn);
+            if(encodedpass!=null){
+                String decodedpass = jwt.decodeToken(encodedpass);
+                if(passIn.equals(decodedpass)){
                     passInput.close();
                     return true;
                 }

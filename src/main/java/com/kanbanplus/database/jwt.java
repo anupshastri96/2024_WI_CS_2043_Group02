@@ -1,12 +1,9 @@
 package com.kanbanplus.database;
 
-
 import java.security.SecureRandom;
 import java.util.Base64;
-
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-
 
 public class jwt{
 
