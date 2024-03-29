@@ -86,7 +86,7 @@ public class database{
         return usersResult.getInt(1);
     }
 
-    //To save the user's work on the board
+    //To save the user's work done on the board
     public static void saveBoard (Connection connectorIn,KanbanBoard board,int userID){
         String query  = "update boards set board = ? where userID = ?";
         byte data[] = SerializationUtils.serialize(board);
