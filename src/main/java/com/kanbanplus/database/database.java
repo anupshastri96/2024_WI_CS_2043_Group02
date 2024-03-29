@@ -1,39 +1,36 @@
 package com.kanbanplus.database;
 
+import com.kanbanplus.classes.Card;
+
+
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Scanner;
 
-public class database {
-    public static void main(String[] args) throws SQLException{
+import org.apache.commons.lang3.SerializationUtils;
+
+
+public class database{
+    public static void main(String[] args) throws SQLException {
         Connection connector  = openConnection();
-        Scanner passInput;
         
 
         if(connector == null){
             System.out.println("Unable to Connect to the Database");
             System.exit(1);
         }
-        while(true){
-             passInput = new Scanner(System.in);
-            String passIn = passInput.nextLine();
-            try{
-                String password = checkUser("adrian_2099", connector);
-                if(password!=null){
-                    if(passIn.equals(password)){
-                        passInput.close();
-                        break;
-                    }
-                    else throw new Exception("Password Incorrect ");
-                }
-                else throw new Exception("Username Invalid");
-                
-            }
-            catch(Exception e){
-                System.out.println(e.getMessage());
-            }
+        while(!checkPassword(connector)){
+            System.out.println("Oopsie Dasie");
         }
-        
-        
+        Card card = new Card("1", "Test");
+
+        storeCard(connector, card, 1);
+        ArrayList<Card> cards = getCards(connector, 1); 
+        Iterator<Card> iter = cards.iterator();
+        while(iter.hasNext()){
+            System.out.println(iter.next().getTitle());
+        }
     }
 
 
@@ -65,5 +62,62 @@ public class database {
         if(!usersResult.next()) return null;
 
         else return usersResult.getString(1);
+    }
+
+    @SuppressWarnings("resource")
+    public static boolean checkPassword(Connection connectionIn){  
+        Scanner passInput = new Scanner(System.in);
+        String passIn = passInput.nextLine();
+        try{
+            String password = checkUser("adrian_2099", connectionIn);
+            if(password!=null){
+                if(passIn.equals(password)){
+                    passInput.close();
+                    return true;
+                }
+                else throw new Exception("Password Incorrect ");
+            }
+            else throw new Exception("Username Invalid");
+            
+        }
+        catch(Exception e){
+            System.out.println(e.getMessage());
+            return false;
+        }
+    }
+
+    public static void storeCard (Connection connectionIn,Card card,int userID){
+        String query  = "insert into cards values(?,?)";
+        byte data[] = SerializationUtils.serialize(card);
+        try{
+            PreparedStatement statement = connectionIn.prepareStatement(query);
+            statement.setInt(1, userID);
+            statement.setBytes(2, data);
+            statement.executeUpdate();
+        }
+        catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
+    }
+
+
+    public static ArrayList<Card> getCards(Connection connectionIn,int userID){
+        String query = "select card from cards where userID = ? ";
+        ArrayList<Card> cards = new ArrayList<>() ;
+        try{
+            PreparedStatement statement = connectionIn.prepareStatement(query);
+            statement.setInt(1, userID);
+            ResultSet set = statement.executeQuery();
+            while(set.next()){
+                Card card = SerializationUtils.deserialize(set.getBytes(1));
+                cards.add(card);
+            } 
+        }
+        catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
+        
+        return cards;
+        
     }
 }

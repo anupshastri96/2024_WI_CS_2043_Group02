@@ -1,9 +1,10 @@
 package com.kanbanplus.classes;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Card {
+public class Card implements Serializable{
     private String cardId;
     private String title;
     private String description;
