@@ -2,8 +2,6 @@
 package com.kanbanplus.classes;
 import java.util.List;
 
-import com.kanbanplus.database.KanbanList;
-
 public class KanbanBoard {
     private String boardId;
     private String title;

@@ -1,8 +1,6 @@
 // KanbanList.java
-package com.kanbanplus.database;
+package com.kanbanplus.classes;
 import java.util.List;
-
-import com.kanbanplus.classes.Card;
 
 public class KanbanList {
     private String listId;
