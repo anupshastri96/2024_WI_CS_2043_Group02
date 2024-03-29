@@ -1,8 +1,9 @@
 // KanbanBoard.java
 package com.kanbanplus.classes;
+import java.io.Serializable;
 import java.util.List;
 
-public class KanbanBoard {
+public class KanbanBoard implements Serializable {
     private String boardId;
     private String title;
     private List<KanbanList> lists;
