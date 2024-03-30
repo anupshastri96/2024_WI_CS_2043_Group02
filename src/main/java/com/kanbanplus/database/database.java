@@ -1,12 +1,8 @@
 package com.kanbanplus.database;
 
 import com.kanbanplus.classes.KanbanBoard;
-
-
-
 import java.sql.*;
 import java.util.ArrayList;
-
 import org.apache.commons.lang3.SerializationUtils;
 
 public class database{
@@ -95,6 +91,7 @@ public class database{
     //To save the user's work done on the board
     public static void saveBoard (Connection connectorIn,KanbanBoard board,int userID){
         String query  = "update boards set board = ? where userID = ?";
+        //Convert Object to bytes
         byte data[] = SerializationUtils.serialize(board);
         try{
             PreparedStatement statement = connectorIn.prepareStatement(query);
@@ -110,6 +107,7 @@ public class database{
     //To store user's board for the first time
     public static void storeBoard (Connection connectorIn,KanbanBoard board,int userID){
         String query  = "insert into boards values(?,?)";
+        //Convert Object to bytes
         byte data[] = SerializationUtils.serialize(board);
         try{
             PreparedStatement statement = connectorIn.prepareStatement(query);
@@ -130,6 +128,7 @@ public class database{
             PreparedStatement statement = connectorIn.prepareStatement(query);
             statement.setInt(1, userID);
             ResultSet set = statement.executeQuery();
+            //Converting bytes back to object and adding them to the arraylist
             while(set.next()) boards.add((KanbanBoard)SerializationUtils.deserialize(set.getBytes(1)));
         }
         catch(SQLException e){

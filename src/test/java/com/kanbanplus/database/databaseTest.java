@@ -2,7 +2,6 @@ package com.kanbanplus.database;
 
 import static org.junit.Assert.assertTrue;
 
-
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Iterator;
