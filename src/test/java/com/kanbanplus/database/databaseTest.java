@@ -25,7 +25,7 @@ public class databaseTest
     }
 
     @Test
-    public void testCheckPassword()
+    public void testCheckPassword() throws Exception
     {
      assertTrue(database.checkPassword(connector, "adrian_2099", "bookworm@1"));   
     }

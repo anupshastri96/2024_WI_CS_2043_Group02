@@ -9,16 +9,19 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.kanbanplus.database.database;
+
 public class KanbanBoardGUI extends Application {
 
     private Map<String, List<String>> lists; //store lists and their corresponding notes
 	private Map<String, String> listStages; //to store the stage for each list
-	
+	Connection connector = database.openConnection();
     @Override
     public void start(Stage primaryStage) {
         // Initialize lists map
@@ -51,18 +54,22 @@ public class KanbanBoardGUI extends Application {
             // Handle login logic here
             String username = userTextField.getText();
             String password = pwBox.getText();
-            if (authenticate(username, password)) {
-                // Successfully authenticated, show Kanban Board
-                primaryStage.setScene(createKanbanBoardScene(primaryStage));
-                primaryStage.setTitle("Kanban Board Plus");
-            } else {
+            try{
+                if (database.checkPassword(connector, username, password)) {
+                    // Successfully authenticated, show Kanban Board
+                    primaryStage.setScene(createKanbanBoardScene(primaryStage));
+                    primaryStage.setTitle("Kanban Board Plus");
+                }
+            }
+            catch(Exception exception) {
                 // Authentication failed, show error message
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Authentication Failed");
                 alert.setHeaderText(null);
-                alert.setContentText("Invalid username or password. Please try again.");
+                alert.setContentText(exception.getMessage());
                 alert.showAndWait();
             }
+            
         });
 
         // Create scene and show on the stage
@@ -72,10 +79,6 @@ public class KanbanBoardGUI extends Application {
         primaryStage.show();
     }
 
-    private boolean authenticate(String username, String password) {
-        // checks if password and username aren't null
-        return !username.isEmpty() && !password.isEmpty();
-    }
 
     private Scene createKanbanBoardScene(Stage primaryStage) {
         // scene for the kanban board after logging in

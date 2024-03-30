@@ -48,23 +48,16 @@ public class database{
     }
 
     //To check if the password is correct or incorrect
-    @SuppressWarnings("resource")
-    public static boolean checkPassword(Connection connectorIn,String userIn,String passIn){  
-        try{
-            String pass = checkUser(userIn, connectorIn);
-            if(pass!=null){
-                if(passIn.equals(pass)){
-                    return true;
-                }
-                else throw new Exception("Password Incorrect ");
+
+    public static boolean checkPassword(Connection connectorIn,String userIn,String passIn) throws Exception{  
+        String pass = checkUser(userIn, connectorIn);
+        if(pass!=null){
+            if(passIn.equals(pass)){
+                return true;
             }
-            else throw new Exception("Username Invalid");
-            
+            else throw new Exception("Password Incorrect ");
         }
-        catch(Exception e){
-            System.out.println(e.getMessage());
-            return false;
-        }
+        else throw new Exception("Username Invalid");
     }
 
     //To retrieve the user ID of user that is logged in
