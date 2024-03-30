@@ -1,5 +1,6 @@
 package com.kanbanplus.database;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.sql.Connection;
@@ -25,15 +26,26 @@ public class databaseTest
     }
 
     @Test
-    public void testCheckPassword() throws Exception
+    public void testCorrectPassword() throws Exception
     {
      assertTrue(database.checkPassword(connector, "adrian_2099", "bookworm@1"));   
+    }
+
+    @Test
+    public void testFalsePassword() throws Exception
+    {
+     assertFalse(database.checkPassword(connector, "adrian_2099", "bookworm@2"));   
     }
 
     @Test
     public void testGetID()
     {
         assertTrue(database.getID(connector, "adrian_2099")>0);
+    }
+
+    public void testWrongID()
+    {
+        assertTrue(database.getID(connector, "adrian_2097")>0);
     }
 
     @Test

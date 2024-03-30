@@ -49,15 +49,17 @@ public class database{
 
     //To check if the password is correct or incorrect
 
-    public static boolean checkPassword(Connection connectorIn,String userIn,String passIn) throws Exception{  
+    public static boolean checkPassword(Connection connectorIn,String userIn,String passIn) throws Exception{
+        boolean success = false;  
         String pass = checkUser(userIn, connectorIn);
         if(pass!=null){
             if(passIn.equals(pass)){
-                return true;
+                success = true;
             }
             else throw new Exception("Password Incorrect ");
         }
         else throw new Exception("Username Invalid");
+        return success;
     }
 
     //To retrieve the user ID of user that is logged in
