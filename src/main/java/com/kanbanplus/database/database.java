@@ -1,20 +1,16 @@
 package com.kanbanplus.database;
 
 import com.kanbanplus.classes.KanbanBoard;
+
+
+
 import java.sql.*;
+import java.util.ArrayList;
+
 import org.apache.commons.lang3.SerializationUtils;
 
 public class database{
-    public static void main(String[] args) throws SQLException {
-        Connection connector  = openConnection();
-        
 
-        if(connector == null){
-            System.out.println("Unable to Connect to the Database");
-            System.exit(1);
-        }
-        while(!checkPassword(connector,"adrian_2099","bookworm@1"))return;
-    }
 
     //To open a secured connection to the database
     public static Connection openConnection(){
@@ -59,10 +55,9 @@ public class database{
     @SuppressWarnings("resource")
     public static boolean checkPassword(Connection connectorIn,String userIn,String passIn){  
         try{
-            String encodedpass = checkUser(userIn, connectorIn);
-            if(encodedpass!=null){
-                String decodedpass = jwt.decodeToken(encodedpass);
-                if(passIn.equals(decodedpass)){
+            String pass = checkUser(userIn, connectorIn);
+            if(pass!=null){
+                if(passIn.equals(pass)){
                     return true;
                 }
                 else throw new Exception("Password Incorrect ");
@@ -78,20 +73,22 @@ public class database{
 
     //To retrieve the user ID of user that is logged in
     public static int getID(Connection connectorIn,String userIn){
+        int userID = 0;
         try{
             String usersQuery = "select userID from users where username = ?;";
-
             PreparedStatement userStatement = connectorIn.prepareStatement(usersQuery);
 
             userStatement.setString(1,userIn);
 
             ResultSet usersResult = userStatement.executeQuery();
             
-            return usersResult.getInt(1);
+            while(usersResult.next()) userID=usersResult.getInt(1);
+
+            return userID;
         }
         catch(SQLException e){
             System.out.println(e.getMessage());
-            return 0;
+            return userID;
         }
     }
 
@@ -126,21 +123,20 @@ public class database{
     }
 
     //To retrieve the board from the database
-    public static KanbanBoard getBoard(Connection connectorIn,int userID,KanbanBoard boardIn){
-        String query = "select board from boards where userID = ? and board = ? ";
-        KanbanBoard board = null ;
+    public static ArrayList<KanbanBoard> getBoards(Connection connectorIn,int userID){
+        String query = "select board from boards where userID = ?";
+        ArrayList<KanbanBoard> boards = new ArrayList<KanbanBoard>() ;
         try{
             PreparedStatement statement = connectorIn.prepareStatement(query);
             statement.setInt(1, userID);
-            statement.setBytes(2, SerializationUtils.serialize(boardIn));
             ResultSet set = statement.executeQuery();
-            while(set.next()) board = SerializationUtils.deserialize(set.getBytes(1));
+            while(set.next()) boards.add((KanbanBoard)SerializationUtils.deserialize(set.getBytes(1)));
         }
         catch(SQLException e){
             System.out.println(e.getMessage());
         }
         
-        return board;
+        return boards;
         
     }
 }

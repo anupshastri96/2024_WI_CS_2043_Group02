@@ -4,10 +4,14 @@ import static org.junit.Assert.assertTrue;
 
 
 import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import org.junit.Test;
 
 import com.kanbanplus.classes.KanbanBoard;
+import com.kanbanplus.classes.KanbanList;
 
 
 public class databaseTest 
@@ -16,34 +20,42 @@ public class databaseTest
     KanbanBoard board = new KanbanBoard("#b1", "New Board");
 
     @Test
-    void testDatabaseConnection()
+    public void testDatabaseConnection()
     {   
         assertTrue(connector!=null);
     }
 
     @Test
-    void testCheckPassword()
+    public void testCheckPassword()
     {
      assertTrue(database.checkPassword(connector, "adrian_2099", "bookworm@1"));   
     }
 
     @Test
-    void testGetID()
+    public void testGetID()
     {
         assertTrue(database.getID(connector, "adrian_2099")>0);
     }
 
     @Test
-    void testStoreBoard()
+    public void testStoreBoard()
     {
         database.storeBoard(connector, board, 1);
-        KanbanBoard checkBoard = database.getBoard(connector, 1, board);
-        assertTrue(board == checkBoard);
+        ArrayList<KanbanBoard> checkBoard = database.getBoards(connector, 1);
+        Iterator<KanbanBoard> iter = checkBoard.iterator();
+        while(iter.hasNext()) assertTrue(iter.next().getBoardId().equals(board.getBoardId()));
     }
 
     @Test
-    void testSaveBoard()
+    public void testSaveBoard()
     {
+        List<KanbanList> list = new ArrayList<KanbanList>();
+        list.add(new KanbanList("#1", "test"));
+        board.setLists(list);
+        database.saveBoard(connector, board, 1);
+        ArrayList<KanbanBoard> checkBoard = database.getBoards(connector, 1);
+        Iterator<KanbanBoard> iter = checkBoard.iterator();
+        while(iter.hasNext()) assertTrue(iter.next().getLists().get(0).getListId().equals(board.getLists().get(0).getListId()));
         
     }
 
