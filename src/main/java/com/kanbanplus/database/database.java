@@ -2,7 +2,6 @@ package com.kanbanplus.database;
 
 import com.kanbanplus.classes.KanbanBoard;
 import java.sql.*;
-import java.util.Scanner;
 import org.apache.commons.lang3.SerializationUtils;
 
 public class database{
@@ -14,7 +13,7 @@ public class database{
             System.out.println("Unable to Connect to the Database");
             System.exit(1);
         }
-        while(!checkPassword(connector,"adrian_2099"))return;
+        while(!checkPassword(connector,"adrian_2099","bookworm@1"))return;
     }
 
     //To open a secured connection to the database
@@ -35,31 +34,35 @@ public class database{
     }
 
     //To check if the user exists or not
-    private static String checkUser(String userIn, Connection connectorIn) throws SQLException{
-        String usersQuery = "select password from users where username = ?;";
+    private static String checkUser(String userIn, Connection connectorIn){
+        try{
+            String usersQuery = "select password from users where username = ?;";
 
-        PreparedStatement userStatement = connectorIn.prepareStatement(usersQuery);
+            PreparedStatement userStatement = connectorIn.prepareStatement(usersQuery);
 
-        userStatement.setString(1,userIn);
+            userStatement.setString(1,userIn);
 
-        ResultSet usersResult = userStatement.executeQuery();
+            ResultSet usersResult = userStatement.executeQuery();
 
-        if(!usersResult.next()) return null;
+            if(!usersResult.next()) return null;
 
-        else return usersResult.getString(1);
+            else return usersResult.getString(1);
+        }
+        catch(SQLException e){
+            System.out.println(e.getMessage());
+            return null;
+        }
+        
     }
 
     //To check if the password is correct or incorrect
     @SuppressWarnings("resource")
-    public static boolean checkPassword(Connection connectorIn,String userIn){  
-        Scanner passInput = new Scanner(System.in);
-        String passIn = passInput.nextLine();
+    public static boolean checkPassword(Connection connectorIn,String userIn,String passIn){  
         try{
             String encodedpass = checkUser(userIn, connectorIn);
             if(encodedpass!=null){
                 String decodedpass = jwt.decodeToken(encodedpass);
                 if(passIn.equals(decodedpass)){
-                    passInput.close();
                     return true;
                 }
                 else throw new Exception("Password Incorrect ");
@@ -74,16 +77,22 @@ public class database{
     }
 
     //To retrieve the user ID of user that is logged in
-    public static int getID(Connection connectorIn,String userIn) throws SQLException{
-        String usersQuery = "select userID from users where username = ?;";
+    public static int getID(Connection connectorIn,String userIn){
+        try{
+            String usersQuery = "select userID from users where username = ?;";
 
-        PreparedStatement userStatement = connectorIn.prepareStatement(usersQuery);
+            PreparedStatement userStatement = connectorIn.prepareStatement(usersQuery);
 
-        userStatement.setString(1,userIn);
+            userStatement.setString(1,userIn);
 
-        ResultSet usersResult = userStatement.executeQuery();
-        
-        return usersResult.getInt(1);
+            ResultSet usersResult = userStatement.executeQuery();
+            
+            return usersResult.getInt(1);
+        }
+        catch(SQLException e){
+            System.out.println(e.getMessage());
+            return 0;
+        }
     }
 
     //To save the user's work done on the board
@@ -117,12 +126,13 @@ public class database{
     }
 
     //To retrieve the board from the database
-    public static KanbanBoard getBoard(Connection connectorIn,int userID){
-        String query = "select board from boards where userID = ? ";
+    public static KanbanBoard getBoard(Connection connectorIn,int userID,KanbanBoard boardIn){
+        String query = "select board from boards where userID = ? and board = ? ";
         KanbanBoard board = null ;
         try{
             PreparedStatement statement = connectorIn.prepareStatement(query);
             statement.setInt(1, userID);
+            statement.setBytes(2, SerializationUtils.serialize(boardIn));
             ResultSet set = statement.executeQuery();
             while(set.next()) board = SerializationUtils.deserialize(set.getBytes(1));
         }
