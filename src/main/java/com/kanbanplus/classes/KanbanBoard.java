@@ -1,6 +1,7 @@
 // KanbanBoard.java
 package com.kanbanplus.classes;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class KanbanBoard implements Serializable {
@@ -12,6 +13,7 @@ public class KanbanBoard implements Serializable {
     public KanbanBoard(String boardId, String title) {
         this.boardId = boardId;
         this.title = title;
+        lists = new ArrayList<KanbanList>(); 
     }
 
     public String getBoardId() {
@@ -34,8 +36,8 @@ public class KanbanBoard implements Serializable {
         return lists;
     }
 
-    public void setLists(List<KanbanList> lists) {
-        this.lists = lists;
+    public void addToList(KanbanList listIn) {
+        this.lists.add(listIn);
     }
 
     public List<User> getUsers() {

@@ -60,9 +60,7 @@ public class databaseTest
     @Test
     public void testSaveBoard()
     {
-        List<KanbanList> list = new ArrayList<KanbanList>();
-        list.add(new KanbanList("#1", "test"));
-        board.setLists(list);
+        board.addToList(new KanbanList("#1", "test"));
         database.saveBoard(connector, board, 1);
         ArrayList<KanbanBoard> checkBoard = database.getBoards(connector, 1);
         Iterator<KanbanBoard> iter = checkBoard.iterator();

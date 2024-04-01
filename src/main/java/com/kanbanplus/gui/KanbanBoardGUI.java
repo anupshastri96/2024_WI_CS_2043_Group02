@@ -11,7 +11,10 @@ import javafx.stage.Stage;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.sql.Connection;
 import java.util.*;
+
+import com.kanbanplus.database.database;
 
 public class KanbanBoardGUI extends Application {
     private Map<String, List<String>> lists; // Store lists and their corresponding notes
@@ -21,6 +24,7 @@ public class KanbanBoardGUI extends Application {
     // Class-level variable
     private Map<String, String> listPriorities; // Store the priority for each list
 
+    private Connection connector = database.openConnection();
 
     @Override
     public void start(Stage primaryStage) {
@@ -59,11 +63,16 @@ public class KanbanBoardGUI extends Application {
         btn.setOnAction(e -> {
             String username = userTextField.getText();
             String password = pwBox.getText();
-            if (authenticate(username, password)) {
-                primaryStage.setScene(createKanbanBoardScene(primaryStage));
-                primaryStage.setTitle("Kanban Board Plus");
-            } else {
-                showAlert("Authentication Failed", "Invalid username or password. Please try again.");
+            try{
+                if (database.checkPassword(connector, username, password)) {
+                    // Successfully authenticated, show Kanban Board
+                    primaryStage.setScene(createKanbanBoardScene(primaryStage,username));
+                    primaryStage.setTitle("Kanban Board Plus");
+                }
+            }
+            catch(Exception exception) {
+                // Authentication failed, show error message
+                showAlert("Authentication Failed", exception.getMessage());
             }
         });        
 
@@ -76,11 +85,9 @@ public class KanbanBoardGUI extends Application {
         return new Scene(grid, 300, 275);
     }
 
-    private boolean authenticate(String username, String password) {
-        return !username.isEmpty() && !password.isEmpty();
+    private void refreshUserDatabase(Map<String, List<String>> listIn,String userIn){
     }
-
-    private Scene createKanbanBoardScene(Stage primaryStage) {
+    private Scene createKanbanBoardScene(Stage primaryStage,String userIn) {
         BorderPane borderPane = new BorderPane();
         borderPane.setStyle("-fx-background-color: #f0f4f8;"); // Light background for the whole scene
         
@@ -256,7 +263,7 @@ public class KanbanBoardGUI extends Application {
     
         ToolBar toolBar = new ToolBar();
         Button backButton = new Button("Go Back");
-        backButton.setOnAction(event -> primaryStage.setScene(createKanbanBoardScene(primaryStage)));
+        backButton.setOnAction(event -> primaryStage.setScene(createKanbanBoardScene(primaryStage,"adrian_2099")));
         toolBar.getItems().add(backButton);
         borderPane.setTop(toolBar);
     
