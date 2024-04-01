@@ -17,6 +17,7 @@ import java.util.*;
 import com.kanbanplus.database.database;
 
 public class KanbanBoardGUI extends Application {
+    private kanbanBoard kanbanBoard;  // kanban board object to store lists
     private Map<String, List<String>> lists; // Store lists and their corresponding notes
     private Map<String, String> listStages; // To store the stage for each list
     // Map to store the priority of each note. Note IDs as keys for simplicity in this example.
@@ -28,6 +29,7 @@ public class KanbanBoardGUI extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        kanbanBoard = new kanbanBoard(); // initialize the kanban board object
         lists = new HashMap<>();
         listStages = new HashMap<>();
         notePriorities = new HashMap<>();
