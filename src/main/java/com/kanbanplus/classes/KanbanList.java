@@ -2,6 +2,8 @@
 package com.kanbanplus.classes;
 import java.io.Serializable;
 import java.util.List;
+import java.util.*;
+
 
 public class KanbanList implements Serializable {
     private String listId;
@@ -38,4 +40,13 @@ public class KanbanList implements Serializable {
     }
 
     // Additional methods like adding or removing cards can be added here
+    public void addCard(Card card) {
+        cards.add(card);
+    }
+
+    public void removeCard(Card card) {
+        cards.remove(card);
+    }
+
+    
 }
