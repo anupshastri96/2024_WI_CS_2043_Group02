@@ -6,18 +6,18 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.scene.web.WebView;
 import javafx.stage.Stage;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 
 import java.sql.Connection;
 import java.util.*;
 
+import com.kanbanplus.classes.Card;
+import com.kanbanplus.classes.KanbanBoard;
+import com.kanbanplus.classes.KanbanList;
 import com.kanbanplus.database.database;
 
 public class KanbanBoardGUI extends Application {
-    private Map<String, List<String>> lists; // Store lists and their corresponding notes
+    private Map<String, List<Card>> lists; // Store lists and their corresponding notes
     private Map<String, String> listStages; // To store the stage for each list
     // Map to store the priority of each note. Note IDs as keys for simplicity in this example.
     private Map<String, String> notePriorities;
@@ -25,6 +25,8 @@ public class KanbanBoardGUI extends Application {
     private Map<String, String> listPriorities; // Store the priority for each list
 
     private Connection connector = database.openConnection();
+    private KanbanBoard board;
+    private String user;
 
     @Override
     public void start(Stage primaryStage) {
@@ -61,12 +63,17 @@ public class KanbanBoardGUI extends Application {
         Button btn = new Button("Sign in");
 
         btn.setOnAction(e -> {
-            String username = userTextField.getText();
+            user = userTextField.getText();
             String password = pwBox.getText();
             try{
-                if (database.checkPassword(connector, username, password)) {
+                if (database.checkPassword(connector, user, password)) {
                     // Successfully authenticated, show Kanban Board
-                    primaryStage.setScene(createKanbanBoardScene(primaryStage,username));
+                    board  = database.getBoard(connector, database.getID(connector, user));
+                    if(board == null){
+                        board =  new KanbanBoard("#b1","Board 1");
+                        database.storeBoard(connector,board, database.getID(connector, user));
+                    }
+                    primaryStage.setScene(createKanbanBoardScene(primaryStage));
                     primaryStage.setTitle("Kanban Board Plus");
                 }
             }
@@ -85,18 +92,36 @@ public class KanbanBoardGUI extends Application {
         return new Scene(grid, 300, 275);
     }
 
-    private void refreshUserDatabase(Map<String, List<String>> listIn,String userIn){
+    private void getUserList(){
+        List<KanbanList> list = board.getLists();
+        Iterator<KanbanList> iterator  = list.iterator();
+        while(iterator.hasNext()){
+            KanbanList currentValue  = iterator.next();
+            if(!lists.containsKey(currentValue.getTitle())) lists.put(currentValue.getTitle(),currentValue.getCards());
+        }
+        
+        
+
     }
-    private Scene createKanbanBoardScene(Stage primaryStage,String userIn) {
+    private Scene createKanbanBoardScene(Stage primaryStage) {
         BorderPane borderPane = new BorderPane();
         borderPane.setStyle("-fx-background-color: #f0f4f8;"); // Light background for the whole scene
+        getUserList();
         
         // Styling the toolbar and add list button
-        ToolBar toolBar = new ToolBar();
-        toolBar.setStyle("-fx-background-color: #394867; -fx-padding: 10;"); // Darker background for toolbar
+        BorderPane toolbarPane = new BorderPane();
+        ToolBar toolBarLeft = new ToolBar();
+        ToolBar toolBarRight = new ToolBar();
+        toolbarPane.setLeft(toolBarLeft);
+        toolbarPane.setRight(toolBarRight);
+        toolbarPane.setStyle("-fx-background-color: #394867;");
+        toolBarLeft.setStyle("-fx-background-color: #394867; -fx-padding: 10;"); // Darker background for Left toolbar
+        toolBarRight.setStyle("-fx-background-color: #394867; -fx-padding: 10;"); // Darker background for Right toolbar
         Button addListButton = createStyledButton("Add List", "#5C6BC0", "#ffffff"); // Blue button
-        toolBar.getItems().add(addListButton);
-        borderPane.setTop(toolBar);
+        Button logOutButton = createStyledButton("Log Out","#5C6BC0", "#ffffff");//Blue button for Log Out
+        toolBarLeft.getItems().add(addListButton);
+        toolBarRight.getItems().add(logOutButton);
+        borderPane.setTop(toolbarPane);
 
         VBox mainContent = new VBox(10);
         mainContent.setAlignment(Pos.TOP_CENTER);
@@ -113,6 +138,17 @@ public class KanbanBoardGUI extends Application {
                     refreshLists(mainContent, primaryStage);
                 }
             });
+        });
+        logOutButton.setOnAction(e->{
+            board.getLists().clear();
+            for (Map.Entry<String,List<Card>> entry : lists.entrySet()) {
+                KanbanList list  = new KanbanList("#1",entry.getKey());
+                list.setCards(entry.getValue());
+                board.addToList(list);
+            }
+            database.saveBoard(connector,board,database.getID(connector, user));
+            lists.clear();
+            primaryStage.setScene(createLoginScene(primaryStage));
         });
 
         refreshLists(mainContent, primaryStage);
@@ -151,7 +187,7 @@ public class KanbanBoardGUI extends Application {
             // Update the priority in the listPriorities map when changed
             listPriorities.put(listName, priorityComboBox.getValue());
         });
-    
+
         // Add the priority label and ComboBox to the header
         header.getChildren().addAll(priorityLabel, priorityComboBox);
     
@@ -239,7 +275,7 @@ public class KanbanBoardGUI extends Application {
                 HBox noteItem = new HBox(10);
                 noteItem.setAlignment(Pos.CENTER_LEFT);
                 
-                Label noteLabel = new Label(note); // Assuming 'note' is the note text or ID
+                Label noteLabel = new Label(note.getTitle()); // Assuming 'note' is the note text or ID
                 noteLabel.setStyle("-fx-padding: 5;");
                 noteItem.getChildren().add(noteLabel);
                 
@@ -247,7 +283,7 @@ public class KanbanBoardGUI extends Application {
                 ComboBox<String> priorityComboBox = new ComboBox<>();
                 priorityComboBox.getItems().addAll("High", "Medium", "Low");
                 priorityComboBox.setValue(notePriorities.getOrDefault(note, "Medium"));
-                priorityComboBox.setOnAction(e -> notePriorities.put(note, priorityComboBox.getValue()));
+                priorityComboBox.setOnAction(e -> notePriorities.put(note.getTitle(), priorityComboBox.getValue()));
                 noteItem.getChildren().add(priorityComboBox);
                 
                 listPane.getChildren().add(noteItem);
@@ -263,7 +299,7 @@ public class KanbanBoardGUI extends Application {
     
         ToolBar toolBar = new ToolBar();
         Button backButton = new Button("Go Back");
-        backButton.setOnAction(event -> primaryStage.setScene(createKanbanBoardScene(primaryStage,"adrian_2099")));
+        backButton.setOnAction(event -> primaryStage.setScene(createKanbanBoardScene(primaryStage)));
         toolBar.getItems().add(backButton);
         borderPane.setTop(toolBar);
     
@@ -283,7 +319,7 @@ public class KanbanBoardGUI extends Application {
         addTaskButton.setOnAction(event -> {
             String task = newTaskField.getText();
             if (!task.isEmpty()) {
-                lists.get(listName).add(task); // Add new task to the list
+                lists.get(listName).add(new Card("#1", task)); // Add new task to the list
                 newTaskField.clear(); // Clear the input field
                 refreshListDetails(mainContent, listName); // Refresh the list details view
             }
@@ -307,14 +343,14 @@ public class KanbanBoardGUI extends Application {
         }
     
         // Display tasks for the list
-        List<String> tasks = lists.getOrDefault(listName, new ArrayList<>());
+        List<Card> tasks = lists.getOrDefault(listName, new ArrayList<>());
         for (int i = 0; i < tasks.size(); i++) {
-            String task = tasks.get(i); // Get the current task
+            Card task = tasks.get(i); // Get the current task
             HBox taskItem = new HBox(10);
             taskItem.setPadding(new Insets(5));
             taskItem.setStyle("-fx-border-color: #cccccc; -fx-padding: 10; -fx-border-radius: 5;");
     
-            TextField taskField = new TextField(task);
+            TextField taskField = new TextField(task.getTitle());
             taskField.setEditable(false); // Start as non-editable
             taskField.setMaxWidth(Double.MAX_VALUE);
             HBox.setHgrow(taskField, Priority.ALWAYS);
@@ -329,7 +365,7 @@ public class KanbanBoardGUI extends Application {
     
             Button saveButton = new Button("Save");
             saveButton.setOnAction(event -> {
-                tasks.set(finalI, taskField.getText()); // Update the task name
+                tasks.get(finalI).setTitle(taskField.getText()); // Update the task name
                 taskField.setEditable(false); // Make the field non-editable again
                 editButton.setVisible(true); // Show the edit button again
                 refreshListDetails(mainContent, listName); // Refresh the list details view

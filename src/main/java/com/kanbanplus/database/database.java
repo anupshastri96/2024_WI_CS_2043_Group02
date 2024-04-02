@@ -2,7 +2,6 @@ package com.kanbanplus.database;
 
 import com.kanbanplus.classes.KanbanBoard;
 import java.sql.*;
-import java.util.ArrayList;
 import org.apache.commons.lang3.SerializationUtils;
 
 public class database{
@@ -116,21 +115,21 @@ public class database{
     }
 
     //To retrieve the board from the database
-    public static ArrayList<KanbanBoard> getBoards(Connection connectorIn,int userID){
+    public static KanbanBoard getBoard(Connection connectorIn,int userID){
         String query = "select board from boards where userID = ?";
-        ArrayList<KanbanBoard> boards = new ArrayList<KanbanBoard>() ;
+        KanbanBoard board = null ;
         try{
             PreparedStatement statement = connectorIn.prepareStatement(query);
             statement.setInt(1, userID);
             ResultSet set = statement.executeQuery();
             //Converting bytes back to object and adding them to the arraylist
-            while(set.next()) boards.add((KanbanBoard)SerializationUtils.deserialize(set.getBytes(1)));
+            while(set.next()) board = (KanbanBoard)SerializationUtils.deserialize(set.getBytes(1));
         }
         catch(SQLException e){
             System.out.println(e.getMessage());
         }
         
-        return boards;
+        return board;
         
     }
 }

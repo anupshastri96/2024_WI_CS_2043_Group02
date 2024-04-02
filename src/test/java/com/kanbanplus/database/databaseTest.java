@@ -4,9 +4,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 import org.junit.Test;
 
@@ -52,9 +49,8 @@ public class databaseTest
     public void testStoreBoard()
     {
         database.storeBoard(connector, board, 1);
-        ArrayList<KanbanBoard> checkBoard = database.getBoards(connector, 1);
-        Iterator<KanbanBoard> iter = checkBoard.iterator();
-        while(iter.hasNext()) assertTrue(iter.next().getBoardId().equals(board.getBoardId()));
+        KanbanBoard checkBoard = database.getBoard(connector,database.getID(connector, "adrian_2099"));
+        assertTrue(checkBoard.getBoardId().equals(board.getBoardId()));
     }
 
     @Test
@@ -62,9 +58,8 @@ public class databaseTest
     {
         board.addToList(new KanbanList("#1", "test"));
         database.saveBoard(connector, board, 1);
-        ArrayList<KanbanBoard> checkBoard = database.getBoards(connector, 1);
-        Iterator<KanbanBoard> iter = checkBoard.iterator();
-        while(iter.hasNext()) assertTrue(iter.next().getLists().get(0).getListId().equals(board.getLists().get(0).getListId()));
+        KanbanBoard checkBoard = database.getBoard(connector,database.getID(connector, "adrian_2099"));
+        assertTrue(checkBoard.getLists().get(0).getListId().equals(board.getLists().get(0).getListId()));
         
     }
 

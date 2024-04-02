@@ -47,6 +47,4 @@ public class KanbanBoard implements Serializable {
     public void setUsers(List<User> users) {
         this.users = users;
     }
-
-    // Additional methods like adding or removing lists and users can be added here
 }
