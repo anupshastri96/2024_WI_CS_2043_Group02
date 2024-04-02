@@ -79,6 +79,7 @@ public class KanbanBoardGUI extends Application {
             }
             catch(Exception exception) {
                 // Authentication failed, show error message
+                System.out.println(exception.getMessage());
                 showAlert("Authentication Failed", exception.getMessage());
             }
         });        

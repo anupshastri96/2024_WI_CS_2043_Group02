@@ -2,13 +2,13 @@
 package com.kanbanplus.classes;
 import java.io.Serializable;
 import java.util.List;
-import java.util.*;
 
 
-public class KanbanList implements Serializable {
+public class KanbanList implements Serializable{
     private String listId;
     private String title;
     private List<Card> cards;
+    private static final long serialVersionUID = 2931086971234997193L;
 
     public KanbanList(String listId, String title) {
         this.listId = listId;

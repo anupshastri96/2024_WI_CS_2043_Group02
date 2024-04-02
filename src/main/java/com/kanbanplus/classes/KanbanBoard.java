@@ -9,6 +9,7 @@ public class KanbanBoard implements Serializable {
     private String title;
     private List<KanbanList> lists;
     private List<User> users;
+    private static final long serialVersionUID = 8946906589784445458L;
 
     public KanbanBoard(String boardId, String title) {
         this.boardId = boardId;

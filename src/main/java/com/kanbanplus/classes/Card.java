@@ -12,6 +12,7 @@ public class Card implements Serializable{
     private List<Label> labels;
     private List<User> assignees;
     private List<Attachment> attachments;
+    private static final long serialVersionUID = 4790364395370032717L;
 
     public Card(String cardId, String title) {
         this.cardId = cardId;
